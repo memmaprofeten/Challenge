@@ -1,7 +1,6 @@
 #TODO:  Arrow key navigation
 #       Nicer design
-#       Remove brackets from text
-#       fit it to screen
+#       Add split challenge
 from appJar import gui
 from numpy import genfromtxt
 
@@ -14,17 +13,19 @@ def dispExercise():
     stufa = {'1': 'Eka','2': 'Toka', '3':'Vika'}
     for i in range(1,4):
         app.startLabelFrame(stufa[str(i)],2,i-1)
-        app.setLabelFrameWidth(stufa[str(i)],450)
+        app.setLabelFrameWidth(stufa[str(i)],445)
         if int(days[day-1,i-1])==0:
             with open("Text/hand_"+str(day)+".txt") as text:
                 data = text.read()
             app.addImage(stufa[str(i)],"hand_"+str(day)+".gif")
             app.addMessage(stufa[str(i)],data)
+            app.setMessageWidth(stufa[str(i)],445)
         else:
             app.addImage(stufa[str(i)],"hand_"+str(int(days[day-1,i-1]))+".gif")
             with open("Text/hand_"+str(int(days[day-1,i-1]))+".txt") as text:
                 data = text.read()
             app.addMessage(stufa[str(i)],data)
+            app.setMessageWidth(stufa[str(i)],450)
         app.stopLabelFrame()
         if int(days[day-1,i-1])==0:
             app.hideLabelFrame(stufa[str(i)])
