@@ -1,4 +1,5 @@
 #TODO:  Arrow key navigation
+#       Add more empty days in hand.csv
 #       Nicer design
 
 from appJar import gui
@@ -112,6 +113,7 @@ def startChallenge(button):
 
 app = gui("Challenge center")
 app.setFont(10)
+app.setBg('white')
 app.setImageLocation("Pics/small")
 app.addButton("Handstand",startChallenge,0,0)
 app.addButton("Split",startChallenge,1,0)
