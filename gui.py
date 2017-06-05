@@ -45,19 +45,15 @@ def changeExercise():
     stufa = {'1': 'Ensimmäinen','2': 'Toinen', '3':'Kolmas','4':'Neljäs','5':'Viides','6':'Kuudes','7':'Seitsemäs','8':'Kahdeksas',}
     for x in range(1,9):
         app.hideLabelFrame(stufa[str(x)])
-        print("Hiding ",stufa[str(x)])
     for i in range(start,start+3):
         if i>8:
             done = True
             start = 1
             return
         app.showLabelFrame(stufa[str(i)])
-        print("Showing ",stufa[str(i)])
-        #app.showImage(stufa[str(i)])
         if int(days[day-1,i-1])==0:
             done = True
             app.hideLabelFrame(stufa[str(i)])
-            #app.hideImage(stufa[str(i)])
             app.setImage(stufa[str(i)],challenge+"_"+str(day)+".gif")
             with open("Text/"+challenge+"_"+str(day)+".txt") as text:
                 data = text.read()
@@ -85,7 +81,6 @@ def orient(btn):
     else:
         if not done:
             start += 3
-            print("START is " + str(start))
         else:
             day += 1
             if day == 31:
