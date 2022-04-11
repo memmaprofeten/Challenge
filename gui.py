@@ -1,115 +1,125 @@
 #TODO:  Arrow key navigation
-#       Add more empty days in hand.csv
+#       Refactor away globals and make names sensible
+#       Add more empty days in hand.csv. What does this mean??
 #       Nicer design
 
 from appJar import gui
 from numpy import genfromtxt
 
-day = 1
-start = 1
-done = False
-def dispExercise():
-    global day
-    global days
-    global done
-    stufa = {'1': 'Ensimmäinen','2': 'Toinen', '3':'Kolmas','4':'Neljäs','5':'Viides','6':'Kuudes','7':'Seitsemäs','8':'Kahdeksas'}
-    days = genfromtxt(challenge + '.csv',delimiter=',')
-    for i in range(1,9):
-        app.startLabelFrame(stufa[str(i)],2,i-1)
-        app.setLabelFrameWidth(stufa[str(i)],445)
-        if int(days[day-1,i-1])==0:
-            with open("Text/"+challenge+"_"+str(day)+".txt") as text:
-                data = text.read()
-            app.addImage(stufa[str(i)],challenge+"_"+str(day)+".gif")
-            app.addMessage(stufa[str(i)],data)
-            app.setMessageWidth(stufa[str(i)],445)
-        else:
-            app.addImage(stufa[str(i)],challenge+"_"+str(int(days[day-1,i-1]))+".gif")
-            with open("Text/"+challenge+"_"+str(int(days[day-1,i-1]))+".txt") as text:
-                data = text.read()
-            app.addMessage(stufa[str(i)],data)
-            app.setMessageWidth(stufa[str(i)],450)
-        app.stopLabelFrame()
-        if int(days[day-1,i-1])==0:
-            if i<3:
-                done = True
-            app.hideLabelFrame(stufa[str(i)])
-        if done:
-            start = 1
+DAY = 1
+START = 1
+DONE = False
+FINNISH_ORDINALS = {'1': 'Ensimmäinen',
+        '2': 'Toinen', 
+        '3':'Kolmas',
+        '4':'Neljäs',
+        '5':'Viides',
+        '6':'Kuudes',
+        '7':'Seitsemäs',
+        '8':'Kahdeksas'}
 
-def changeExercise():
-    global day
-    global days
-    global start
-    global done
-    stufa = {'1': 'Ensimmäinen','2': 'Toinen', '3':'Kolmas','4':'Neljäs','5':'Viides','6':'Kuudes','7':'Seitsemäs','8':'Kahdeksas',}
+def getDescription(challenge,day):
+    with open("Text/"+challenge+"_"+str(day)+".txt") as text:
+        return text.read()
+
+def addImage(challenge, day, width, ordinal):
+    description = getDescription(challenge, day)
+    app.addImage(FINNISH_ORDINALS[str(ordinal)],challenge+"_"+str(day)+".gif")
+    app.addMessage(FINNISH_ORDINALS[str(ordinal)],description)
+    app.setMessageWidth(FINNISH_ORDINALS[str(ordinal)],width)
+
+def changeImage(challenge,day,ordinal):
+    description = getDescription(challenge,day)
+    app.setImage(FINNISH_ORDINALS[str(ordinal)],challenge+"_"+str(day)+".gif")
+    app.setMessage(FINNISH_ORDINALS[str(ordinal)],description)
+
+def dispExercise(challenge, day):
+    global DONE
+    global DAYS
+    DAYS = genfromtxt(challenge + '.csv',delimiter=',')
+    for exercise in range(1,9):
+        with app.labelFrame(FINNISH_ORDINALS[str(exercise)],2,exercise-1):
+            app.setLabelFrameWidth(FINNISH_ORDINALS[str(exercise)],445)
+            if int(DAYS[day-1,exercise-1])==0: #What does this mean?
+                addImage(challenge, day, 445, exercise)
+            else:
+                addImage(challenge, int(DAYS[day-1,exercise-1]), 450, exercise)#Whats with the different size?
+        if int(DAYS[day-1,exercise-1])==0:
+            if exercise<3:
+                DONE = True
+            app.hideLabelFrame(FINNISH_ORDINALS[str(exercise)])
+        if DONE:
+            START = 1
+
+def changeExercise(challenge, day, start):
+    global DAYS
     for x in range(1,9):
-        app.hideLabelFrame(stufa[str(x)])
-    for i in range(start,start+3):
+        app.hideLabelFrame(FINNISH_ORDINALS[str(x)])
+    for i in range(start, start + 3):
         if i>8:
             done = True
             start = 1
-            return
-        app.showLabelFrame(stufa[str(i)])
-        if int(days[day-1,i-1])==0:
+            return start, done
+        app.showLabelFrame(FINNISH_ORDINALS[str(i)])
+        if int(DAYS[day-1,i-1])==0:
             done = True
-            app.hideLabelFrame(stufa[str(i)])
-            app.setImage(stufa[str(i)],challenge+"_"+str(day)+".gif")
-            with open("Text/"+challenge+"_"+str(day)+".txt") as text:
-                data = text.read()
-            app.setMessage(stufa[str(i)],data)
+            app.hideLabelFrame(FINNISH_ORDINALS[str(i)])
+            changeImage(challenge , day, i)
         else:
             done = False
-            app.setImage(stufa[str(i)],challenge+"_"+str(int(days[day-1,i-1]))+".gif")
-            with open("Text/"+challenge+"_"+str(int(days[day-1,i-1]))+".txt") as text:
-                data = text.read()
-            app.setMessage(stufa[str(i)],data)
-    if int(days[day-1,start+2]) == 0:
+            changeImage(challenge ,int(DAYS[day-1,i-1]),i)
+    if int(DAYS[day-1,start+2]) == 0:
         done = True
     if done:
         start = 1
 
+    return start, done                   
+
 def orient(btn):
-    global day
-    global start
+    global DAY
+    global START
+    global DONE
     if btn=="<":
-        day -= 1
-        if day == 0:
-            day = 30
-        app.setLabel("title","Päivä "+str(day))
-        changeExercise()
+        DAY -= 1
+        if DAY == 0:
+            DAY = 30
+        app.setLabel("title","Päivä "+str(DAY))
+        START, DONE = changeExercise(CHALLENGE, DAY, START)
     else:
-        if not done:
-            start += 3
+        if not DONE:
+            START += 3
         else:
-            day += 1
-            if day == 31:
-                day = 1
-        app.setLabel("title","Päivä "+str(day))
-        changeExercise()
+            DAY += 1
+            if DAY == 31:
+                DAY = 1
+        app.setLabel("title","Päivä "+str(DAY))
+        START, DONE = changeExercise(CHALLENGE, DAY,START)
     
 
 def startChallenge(button):
-    global challenge
+    global CHALLENGE
+    day = 1
     app.removeButton("Handstand")
     app.removeButton("Split")
     app.setStretch("column")
     app.setSticky("n")
     app.startLabelFrame("Controls",0,0,9)
-    app.addLabel("title","Päivä " + str(day),0,1)
+    app.addLabel("title","Päivä " + str(DAY),0,1)
     app.addButton("<",orient,0,0)
     app.addButton(">",orient,0,2)
     app.stopLabelFrame()
     if button == "Handstand":
-        challenge = "hand"
+        CHALLENGE = "hand"
     else:
-        challenge = "spagat"
-    dispExercise()
+        CHALLENGE = "spagat"
+    dispExercise(CHALLENGE,day)
+def startApp():
+    global app
+    with gui("Challenge center") as app:
+        app.setFont(10)
+        app.setBg('white')
+        app.setImageLocation("Pics/small")
+        app.addButton("Handstand",startChallenge,0,0)
+        app.addButton("Split",startChallenge,1,0)
+        app.go()
 
-app = gui("Challenge center")
-app.setFont(10)
-app.setBg('white')
-app.setImageLocation("Pics/small")
-app.addButton("Handstand",startChallenge,0,0)
-app.addButton("Split",startChallenge,1,0)
-app.go()
